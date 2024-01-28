@@ -1,5 +1,5 @@
 # Estrutura do projeto:
- 
+ ```
  -src
     -controllers
         -moovieController.js
@@ -15,3 +15,4 @@
 -env
 -env.example
 -readme.md
+```
