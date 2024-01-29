@@ -1,6 +1,7 @@
 # Estrutura do projeto:
+
  ```
- -src
+-src
     -controllers
         -moovieController.js
         -categoryController.js
@@ -12,7 +13,9 @@
 -index.js
 -package.json
 -package-lock.json
--env
--env.example
--readme.md
-```
+-.env
+-.env.example
+-.gitignore
+-.readme.md
+
+ ```
