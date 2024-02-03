@@ -1,72 +1,79 @@
+const db = require("../db");
 const MooviesController = {
-    findAll(req, res) {
+    async findAll(req, res) {
+        try {
+            const moovies = await db.query(`
+            SELECT 
+              m.*,
+              c.name As category_name,
+              c.description As category_description
+            FROM moovie m
+             INNER JOIN category c ON c.id = m.category_id `
+            );
+            res.json(moovies.rows);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
 
-        /**
-      * Aqui entraria a regra de pesistência do banco de dados
-      */
+        }
 
-        res.json([
-            {
-                id: 1,
-                title: 'Homem Aranha',
-                description: 'Um filme baseado em historia em quadrinhos',
-                category_id: 1,
-                realease_date: '01/10/2022'
-            },
-            {
-                id: 2,
-                nome: 'A casa de Cera',
-                description: 'Um filme de suspense baseado em sumiço de pessoas e uma cidade e o misterio de uma cidade de cera',
-                category_id: 2,
-                realease_date: '06/05/2021'
-            },
-            {
-                id: 3,
-                nome: 'A branca de neve',
-                description: 'Um filme de desenho de uma princesa e a madrasta má',
-                category_id: 3,
-                realease_date: '20/12/2023'
-            },
-        ]);
     },
-    find(req, res) {
+    async find(req, res) {
         const { id } = req.params;
-        /**
-      * Aqui entraria a regra de pesistência do banco de dados
-      */
-        res.json({
-            
-                id: id,
-                title: 'Homem Aranha',
-                description: 'Um filme baseado em historia em quadrinhos',
-                category_id: 1,
-                realease_date: '01/10/2022'
-            
-        });
+        try {
+            const moovies = await db.query(`
+            SELECT 
+              m.*,
+              c.name As category_name,
+              c.description As category_description
+            FROM moovie m
+             INNER JOIN category c ON c.id = m.category_id 
+             WHERE m.id = $1
+             `, [id]);
+            if (moovies.rows.length > 0) {
+                res.json(moovies.rows);
+            } else {
+                res.status(404).json({ error: "Filme não encontrado" });
+            }
+
+
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+
+        }
     },
-    create(req, res) {
+    async create(req, res) {
         const { title, description, category_id, realease_date } = req.body;
-        /**
-         * Aqui entraria a regra de pesistência do banco de dados
-         */
-        res.status(201).json({
-            id: Number.MAX_SAFE_INTEGER,
-            title,
-            description,
-            category_id,
-            realease_date,
 
-        });
+        //é necessario realizar um validaçao pelo id de categoria
+        try {
+            const newMoovie = await db.query(
+                `INSERT INTO  moovie (title, description, category_id, realease_date)
+                 VALUES ($1, $2, $3, $4) RETURNING * `,
+                [title, description, category_id, realease_date]
+            );
 
+            res.status(201).json(newMoovie.rows[0])
+
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     },
-    delete(req, res) {
+    async delete(req, res) {
         const { id } = req.params;
-        /**
-      * Aqui entraria a regra de pesistência do banco de dados
-      */
-        res.status(204).json();
+        try {
+            const result = await db.query(
+                "DELETE FROM moovie WHERE id = $1 RETURNING *",
+                [id]
+            );
+            if (result.rowCount > 0) {
+                res.status(204).json({});
+            }else{
+                res.status(304).json({});
+            }
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     },
-
 }
 
 module.exports = MooviesController;
