@@ -43,7 +43,7 @@ CREATE TABLE moovie(
 
 # Melhorias para api
 
-`` `
+```
 -criar endpoints para atualizar registros
 -criar validações de criações de moovies (validaçao de categoria existente)
 

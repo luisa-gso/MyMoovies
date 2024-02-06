@@ -7,6 +7,8 @@ router.get("/", MooviesController.findAll);
 router.get("/:id", MooviesController.find);
 router.post("/", MooviesController.create);
 router.delete("/:id", MooviesController.delete);
+router.put("/:id", MooviesController.update);
+
 
 
 

@@ -11,6 +11,7 @@ const CategoryController = {
     },
     async find(req, res) {
         const { id } = req.params;
+        
 
         try {
             const category = await db.query(
@@ -49,6 +50,15 @@ const CategoryController = {
     async delete(req, res) {
         const { id } = req.params;
         try {
+
+            const ValId = await db.query(
+                `SELECT * FROM category WHERE id = $1`,
+                [id]
+            );
+            if (ValId.rows.length === 0) {
+                return res.status(404).json({ error: "Categoria nao encontrada" });
+            }
+
             const result = await db.query(
                 "DELETE FROM category WHERE id = $1 RETURNING *",
                 [id]
@@ -62,6 +72,41 @@ const CategoryController = {
             res.status(500).json({ error: error.message });
         }
     },
+
+    async update(req, res) {
+        const { id } = req.params;
+        const { name, description } = req.body;
+
+        try {
+            const ValId = await db.query(
+                `SELECT * FROM category WHERE id = $1`,
+                [id]
+            );
+            if (ValId.rows.length === 0) {
+                return res.status(404).json({ error: "Categoria nao encontrada" });
+            }
+
+            const updateCategory = await db.query(
+                ` UPDATE category 
+                SET  name = $1, description = $2
+                WHERE id = $3
+                RETURNING *; `,
+              
+             [ name, description,id]
+                
+            );
+
+            if (updateCategory.rowCount > 0) {
+                res.status(200).json(updateCategory.rows[0]);
+            } else {
+                res.status(304).json({ error: "atualização nao encontrada" });
+            }
+
+
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
 };
 
 module.exports = CategoryController;
